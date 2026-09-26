@@ -9,13 +9,9 @@ const queryClient = new QueryClient();
 
 const asset = (name: string) => `/assets/${name}`;
 const assets = {
-  hero: asset('MEITU_20260921_195511942_1790459534600.jpg'),
-  still: asset('20260921_175357_1790459534656.jpg'),
-  caps: asset('20260921_175442_1790459534647.jpg'),
-  macro: asset('20260921_175624_1790459534640.jpg'),
-  pour: asset('alemona-shampoo-pour.jpg'),
-  shampooLabel: asset('IMG-20260921-WA0001_1790459534482.jpg'),
-  conditionerLabel: asset('IMG-20260921-WA0002_1790459534515.jpg'),
+  shampoo: asset('alemona-shampoo.jpg'),
+  conditioner: asset('alemona-conditioner.jpg'),
+  shampooCloseup: asset('alemona-shampoo-closeup.jpg'),
 };
 
 type ProductKey = 'shampoo' | 'conditioner';
@@ -33,7 +29,7 @@ const productData: Record<ProductKey, {
     size: '350 ml',
     subtitle: 'For Softer & Stronger Hair',
     description: 'A premium natural shampoo specifically created for complete hair and scalp care. Enriched with pure almond tar, juniper wood oil, and essential vitamins to nourish hair roots, eliminate dandruff, relieve scalp itchiness, and help protect hair against breakage.',
-    images: [assets.pour, assets.still, assets.caps, assets.macro],
+    images: [assets.shampoo, assets.shampooCloseup],
     tags: ['100% Vegan', 'Anti-Dandruff', 'Color-Safe', 'Pure Almond Tar'],
     texture: { consistency: 'Liquid Amber Honey', scent: 'Natural Botanical Almond & Herbal Refreshment', feelLabel: 'Scalp Feel', feel: 'Soothing · Cooling · Non-Greasy', copy: 'A translucent, amber-gold formula captured in motion — fluid, warm and designed to meet the scalp with a clean, refreshing touch.' },
     ingredients: [
@@ -49,7 +45,7 @@ const productData: Record<ProductKey, {
     size: '350 ml',
     subtitle: 'With Natural Oils & Vitamin E',
     description: 'A deeply restorative conditioner designed for all hair types. Enriched with Vitamin E and a rich blend of 7 natural botanical oils — Shea, Coconut, Almond, Castor, Black Seed, Grape Seed, and Onion Seed — to help repair damaged strands, reduce tangles, and impart a silky shine.',
-    images: [assets.still, assets.macro, assets.caps, assets.conditionerLabel],
+    images: [assets.conditioner],
     tags: ['100% Vegan', '7 Natural Oils', 'Hair Repair', 'Tangle-Free'],
     texture: { consistency: 'Rich Velvet Cream', scent: 'Soft Botanical & Natural Oils', feelLabel: 'Hair Feel', feel: 'Silky · Nourishing · Smooth', copy: 'A rich, warm finish inspired by the conditioner’s terracotta packaging — designed to smooth through lengths and leave the hair feeling supple.' },
     ingredients: [
@@ -82,7 +78,7 @@ function App() {
   const inactivityTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const t = copy[language];
   const product = selectedProduct ? productData[selectedProduct] : null;
-  const featuredImage = featuredProduct === 'shampoo' ? assets.pour : assets.still;
+  const featuredImage = featuredProduct === 'shampoo' ? assets.shampooCloseup : assets.conditioner;
   const direction = language === 'AR' ? 'rtl' : 'ltr';
 
   const goTo = (id: string) => {
@@ -184,7 +180,7 @@ function App() {
               </div>
               <div className="collection-grid">
                 <article className="product-card" onClick={() => openProduct('shampoo')} data-testid="card-product-shampoo" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && openProduct('shampoo')}>
-                  <img className="product-card-image product-card-shampoo-image" src={assets.pour} alt="ALEMONA Almond Tar Shampoo product study" />
+                  <img className="product-card-image product-card-shampoo-image" src={assets.shampoo} alt="ALEMONA Almond Tar Shampoo product study" />
                   <div className="product-card-copy">
                     <div className="product-number">01 / Formula</div><h3>Almond Tar<br />Shampoo</h3>
                     <p>For softer and stronger hair. A botanical scalp-care formula with pure almond tar.</p>
@@ -192,7 +188,7 @@ function App() {
                   </div>
                 </article>
                 <article className="product-card" onClick={() => openProduct('conditioner')} data-testid="card-product-conditioner" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && openProduct('conditioner')}>
-                  <img className="product-card-image product-card-conditioner-image" src={assets.still} alt="ALEMONA Hair Conditioner product study" />
+                  <img className="product-card-image product-card-conditioner-image" src={assets.conditioner} alt="ALEMONA Hair Conditioner product study" />
                   <div className="product-card-copy">
                     <div className="product-number">02 / Formula</div><h3>Hair<br />Conditioner</h3>
                     <p>With natural oils and Vitamin E. A restorative finish for smooth, tangle-free lengths.</p>
@@ -207,7 +203,7 @@ function App() {
                 <div className="detail-media">
                   <div className="main-media">
                      <div className="media-marker eyebrow">Alemona / {selectedProduct ? `0${selectedProduct === 'shampoo' ? 1 : 2}` : '01'}<span>{selectedProduct ? product?.name : 'Choose a formula'}</span></div>
-                     <img className={selectedProduct ? `product-detail-image product-detail-image-${selectedProduct}` : 'product-detail-image'} src={product ? gallery[galleryIndex] : assets.macro} alt={product ? `${product.name} detail` : 'Golden botanical formula macro'} key={`${selectedProduct}-${galleryIndex}`} data-testid="img-product-detail" />
+                     <img className={selectedProduct ? `product-detail-image product-detail-image-${selectedProduct}` : 'product-detail-image'} src={product ? gallery[galleryIndex] : assets.shampooCloseup} alt={product ? `${product.name} detail` : 'ALEMONA shampoo close-up'} key={`${selectedProduct}-${galleryIndex}`} data-testid="img-product-detail" />
                     {product && <button className="texture-open" onClick={() => setTextureOpen(true)} data-testid="button-view-texture"><Maximize2 size={13} /> View texture</button>}
                   </div>
                   {product && <div className="gallery-strip" aria-label="Product image gallery">
@@ -228,7 +224,7 @@ function App() {
                         {tab === 'overview' && <><div className="eyebrow">A considered formula</div><p className="lead">{product.description}</p><div className="badge-list">{product.tags.map((tag) => <span className="badge" key={tag} data-testid={`badge-${tag.toLowerCase().replaceAll(' ', '-')}`}>{tag}</span>)}</div></>}
                         {tab === 'texture' && <><div className="eyebrow">Sensory profile</div><div className="stat-grid"><div className="stat"><small>Consistency</small><strong>{product.texture.consistency}</strong></div><div className="stat"><small>Scent profile</small><strong>{product.texture.scent}</strong></div><div className="stat"><small>{product.texture.feelLabel}</small><strong>{product.texture.feel}</strong></div></div><p className="lead" style={{ marginTop: '2rem' }}>{product.texture.copy}</p><button className="primary-link" style={{ marginTop: '1.5rem' }} onClick={() => setTextureOpen(true)} data-testid="button-open-texture-panel">View texture <Maximize2 size={14} /></button></>}
                         {tab === 'ingredients' && <><div className="eyebrow">Key ingredients</div><div className="accordion">{product.ingredients.map((ingredient, index) => <div className="accordion-item" key={ingredient.title}><button className={`accordion-trigger ${openIngredient === index ? 'open' : ''}`} onClick={() => setOpenIngredient(openIngredient === index ? -1 : index)} data-testid={`button-ingredient-${index}`}><span>{ingredient.title}</span>{openIngredient === index ? <ChevronUp size={17} /> : <ChevronDown size={17} />}</button>{openIngredient === index && <div className="accordion-body">{ingredient.body}</div>}</div>)}</div></>}
-                        {tab === 'use' && <><div className="eyebrow">How to use</div><div className="howto">{product.use.map((step, index) => <div className="step" key={step}><b>0{index + 1}</b><p>{step}</p></div>)}</div><div className="label-art"><img src={selectedProduct === 'shampoo' ? assets.shampooLabel : assets.conditionerLabel} alt={`${product.name} official packaging artwork and ingredients`} /><div className="label-caption">Official packaging artwork / ingredients &amp; usage panel</div></div><button className="inci-toggle" onClick={() => setInciOpen(!inciOpen)} data-testid="button-complete-ingredient-list">{inciOpen ? 'Hide complete ingredient list' : 'View complete ingredient list'}</button>{inciOpen && <div className="inci-copy" data-testid="text-complete-ingredients">{selectedProduct === 'shampoo' ? 'Aqua / Water, Sodium Laureth Sulfate, Glycerin, Cocamidopropyl Betaine, Juniperus Communis Needle Oil, Olea Europaea Fruit Oil, Cocos Nucifera Oil, Ricinus Communis Seed Oil, Sodium Chloride, Cocamide DEA, Almond Tar, Panthenol, Tocopherol, Parfum, Polyquaternium-10, Salicylic Acid.' : 'Aqua / Water, Cetearyl Alcohol, Glycerin, Cetrimonium Chloride, Butyrospermum Parkii Butter, Cocos Nucifera Oil, Prunus Amygdalus Dulcis Oil, Ricinus Communis Seed Oil, Nigella Sativa Seed Oil, Vitis Vinifera Seed Oil, Polyquaternium-7, Polyquaternium-10, Tocopherol, Parfum, Phenoxyethanol.'}<br /><br />Storage: Store between 20°C – 25°C.</div>}</>}
+                        {tab === 'use' && <><div className="eyebrow">How to use</div><div className="howto">{product.use.map((step, index) => <div className="step" key={step}><b>0{index + 1}</b><p>{step}</p></div>)}</div><div className="label-art"><img src={selectedProduct === 'shampoo' ? assets.shampoo : assets.conditioner} alt={`${product.name} official product and usage visual`} /><div className="label-caption">Official product photography / ingredients &amp; usage panel</div></div><button className="inci-toggle" onClick={() => setInciOpen(!inciOpen)} data-testid="button-complete-ingredient-list">{inciOpen ? 'Hide complete ingredient list' : 'View complete ingredient list'}</button>{inciOpen && <div className="inci-copy" data-testid="text-complete-ingredients">{selectedProduct === 'shampoo' ? 'Aqua / Water, Sodium Laureth Sulfate, Glycerin, Cocamidopropyl Betaine, Juniperus Communis Needle Oil, Olea Europaea Fruit Oil, Cocos Nucifera Oil, Ricinus Communis Seed Oil, Sodium Chloride, Cocamide DEA, Almond Tar, Panthenol, Tocopherol, Parfum, Polyquaternium-10, Salicylic Acid.' : 'Aqua / Water, Cetearyl Alcohol, Glycerin, Cetrimonium Chloride, Butyrospermum Parkii Butter, Cocos Nucifera Oil, Prunus Amygdalus Dulcis Oil, Ricinus Communis Seed Oil, Nigella Sativa Seed Oil, Vitis Vinifera Seed Oil, Polyquaternium-7, Polyquaternium-10, Tocopherol, Parfum, Phenoxyethanol.'}<br /><br />Storage: Store between 20°C – 25°C.</div>}</>}
                       </div>
                     </>
                   ) : <><div className="eyebrow">02 / Formulas</div><h2>Come closer.</h2><p className="lead">Choose a bottle from the collection to explore its formula, sensory profile, ingredients and ritual.</p><div className="badge-list"><span className="badge">Botanical oils</span><span className="badge">Vitamin E</span><span className="badge">Natural care</span></div></>}
@@ -238,7 +234,7 @@ function App() {
 
             <section className="section philosophy" id="philosophy">
               <div className="philosophy-grid">
-                 <img className="philosophy-image" src={assets.macro} alt="Golden botanical formula detail" data-testid="img-philosophy-detail" />
+                 <img className="philosophy-image" src={assets.shampooCloseup} alt="ALEMONA shampoo close-up texture detail" data-testid="img-philosophy-detail" />
                 <div className="philosophy-copy"><div className="eyebrow">03 / The point of view</div><h2>{t.philosophy}</h2><p>A premium botanical hair-care philosophy centered around carefully selected oils, thoughtful formulations, and a transparent approach to hair and scalp care.</p><p>Every detail is an invitation to look closer: the amber of the formula, the embossed label, the quiet rhythm of a considered ritual.</p></div>
               </div>
             </section>
@@ -250,7 +246,7 @@ function App() {
             <footer className="footer"><strong>ALEMONA</strong><span>Natural Hair &amp; Scalp Care</span><span>Formulated with Botanical Oils &amp; Vitamin E</span></footer>
             <button className="kiosk-toggle" onClick={() => setKiosk((value) => !value)} data-testid="button-kiosk-mode">{kiosk ? 'Exit kiosk' : 'Kiosk mode'}</button>
 
-            {textureOpen && product && <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Texture viewer"><div className="texture-modal"><button className="close-modal" onClick={() => setTextureOpen(false)} data-testid="button-close-texture"><X size={18} /></button><img src={selectedProduct === 'shampoo' ? assets.pour : assets.macro} alt={`${product.name} texture detail`} /><div className="texture-modal-copy"><div className="eyebrow">Sensory study / {product.name}</div><h3>{product.texture.consistency}</h3><p>{product.texture.copy}</p><div className="stat"><small>{product.texture.feelLabel}</small><strong>{product.texture.feel}</strong></div></div></div></div>}
+            {textureOpen && product && <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Texture viewer"><div className="texture-modal"><button className="close-modal" onClick={() => setTextureOpen(false)} data-testid="button-close-texture"><X size={18} /></button><img src={selectedProduct === 'shampoo' ? assets.shampooCloseup : assets.conditioner} alt={`${product.name} texture detail`} /><div className="texture-modal-copy"><div className="eyebrow">Sensory study / {product.name}</div><h3>{product.texture.consistency}</h3><p>{product.texture.copy}</p><div className="stat"><small>{product.texture.feelLabel}</small><strong>{product.texture.feel}</strong></div></div></div></div>}
             {deskOpen && <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Information desk"><div className="texture-modal" style={{ gridTemplateColumns: '1fr' }}><button className="close-modal" onClick={() => setDeskOpen(false)} data-testid="button-close-desk"><X size={18} /></button><div className="texture-modal-copy"><div className="eyebrow">ALEMONA / Information desk</div><h3>Find your way in.</h3><p>Store and stand information will be shared here as locations become available. This showroom is dedicated to exploring the formulas.</p><button className="primary-link" onClick={() => setDeskOpen(false)} data-testid="button-close-desk-copy">Return to the collection <ArrowLeft size={14} /></button></div></div></div>}
           </main>
         </ErrorBoundary>
