@@ -12,6 +12,8 @@ const assets = {
   shampoo: asset('alemona-shampoo.jpg'),
   conditioner: asset('alemona-conditioner.jpg'),
   shampooCloseup: asset('alemona-shampoo-closeup.jpg'),
+  ritualPour: asset('alemona-ritual-pour.jpg'),
+  editorialStillLife: asset('alemona-editorial-still-life.jpg'),
 };
 
 type ProductKey = 'shampoo' | 'conditioner';
@@ -234,7 +236,10 @@ function App() {
 
             <section className="section philosophy" id="philosophy">
               <div className="philosophy-grid">
-                 <img className="philosophy-image" src={assets.shampooCloseup} alt="ALEMONA shampoo close-up texture detail" data-testid="img-philosophy-detail" />
+                <div className="philosophy-gallery" aria-label="ALEMONA ritual and editorial studies">
+                  <img className="philosophy-image philosophy-image-pour" src={assets.ritualPour} alt="Almond extract poured from an ALEMONA shampoo bottle" data-testid="img-philosophy-pour" />
+                  <img className="philosophy-image philosophy-image-still-life" src={assets.editorialStillLife} alt="ALEMONA shampoo and conditioner in a sunlit editorial setting" data-testid="img-philosophy-still-life" />
+                </div>
                 <div className="philosophy-copy"><div className="eyebrow">03 / The point of view</div><h2>{t.philosophy}</h2><p>A premium botanical hair-care philosophy centered around carefully selected oils, thoughtful formulations, and a transparent approach to hair and scalp care.</p><p>Every detail is an invitation to look closer: the amber of the formula, the embossed label, the quiet rhythm of a considered ritual.</p></div>
               </div>
             </section>

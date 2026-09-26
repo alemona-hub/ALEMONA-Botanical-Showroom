@@ -211,7 +211,10 @@
 .philosophy { color: #f2eee6; background: #202c26; position: relative; overflow: hidden; }
 .philosophy::before { content: ''; position: absolute; width: 35rem; height: 35rem; border-radius: 50%; background: #b96e50; opacity: .15; right: -16rem; top: -10rem; filter: blur(2px); }
 .philosophy-grid { position: relative; display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(2rem, 8vw, 9rem); align-items: center; }
-.philosophy-image { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 0; max-width: 32rem; filter: saturate(.8); }
+.philosophy-gallery { width: 100%; max-width: 32rem; display: grid; grid-template-columns: .82fr 1.18fr; gap: .8rem; align-items: end; }
+.philosophy-image { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 0; max-width: none; filter: saturate(.8); }
+.philosophy-image-pour { margin-bottom: 2.6rem; }
+.philosophy-image-still-life { aspect-ratio: .72; }
 .philosophy-copy h2 { font: 500 clamp(3rem, 7vw, 7rem)/.82 var(--app-font-serif); margin: .8rem 0 1.3rem; letter-spacing: -.04em; }
 .philosophy-copy p { max-width: 32rem; color: rgba(242,238,230,.7); line-height: 1.8; font-size: .9rem; }
 .store-band { background: #c47a5b; color: #1c3322; padding: 2rem clamp(1.25rem, 7vw, 7rem); display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
@@ -253,6 +256,8 @@
   .section-heading { display: block; }
   .section-heading p { margin-top: 1.5rem; }
   .collection-grid, .detail-shell, .philosophy-grid { grid-template-columns: 1fr; }
+  .philosophy-gallery { max-width: none; }
+  .philosophy-image-pour { margin-bottom: 1.3rem; }
   .product-card, .product-card:nth-child(2) { min-height: 32rem; margin-top: 0; }
   .detail-media { position: relative; top: auto; }
   .main-media { aspect-ratio: 4/4.8; }
