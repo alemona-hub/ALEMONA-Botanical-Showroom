@@ -13,8 +13,7 @@ const assets = {
   still: asset('20260921_175357_1790459534656.jpg'),
   caps: asset('20260921_175442_1790459534647.jpg'),
   macro: asset('20260921_175624_1790459534640.jpg'),
-  pour: asset('IMG_20260921_201848_407_1790459534610.jpg'),
-  logo: asset('IMG-20260924-WA0000_1790459534526.jpg'),
+  pour: asset('alemona-shampoo-pour.jpg'),
   shampooLabel: asset('IMG-20260921-WA0001_1790459534482.jpg'),
   conditionerLabel: asset('IMG-20260921-WA0002_1790459534515.jpg'),
 };
@@ -34,7 +33,7 @@ const productData: Record<ProductKey, {
     size: '350 ml',
     subtitle: 'For Softer & Stronger Hair',
     description: 'A premium natural shampoo specifically created for complete hair and scalp care. Enriched with pure almond tar, juniper wood oil, and essential vitamins to nourish hair roots, eliminate dandruff, relieve scalp itchiness, and help protect hair against breakage.',
-    images: [assets.hero, assets.still, assets.caps, assets.macro, assets.pour],
+    images: [assets.pour, assets.still, assets.caps, assets.macro],
     tags: ['100% Vegan', 'Anti-Dandruff', 'Color-Safe', 'Pure Almond Tar'],
     texture: { consistency: 'Liquid Amber Honey', scent: 'Natural Botanical Almond & Herbal Refreshment', feelLabel: 'Scalp Feel', feel: 'Soothing · Cooling · Non-Greasy', copy: 'A translucent, amber-gold formula captured in motion — fluid, warm and designed to meet the scalp with a clean, refreshing touch.' },
     ingredients: [
@@ -50,7 +49,7 @@ const productData: Record<ProductKey, {
     size: '350 ml',
     subtitle: 'With Natural Oils & Vitamin E',
     description: 'A deeply restorative conditioner designed for all hair types. Enriched with Vitamin E and a rich blend of 7 natural botanical oils — Shea, Coconut, Almond, Castor, Black Seed, Grape Seed, and Onion Seed — to help repair damaged strands, reduce tangles, and impart a silky shine.',
-    images: [assets.hero, assets.still, assets.macro, assets.caps, assets.conditionerLabel],
+    images: [assets.still, assets.macro, assets.caps, assets.conditionerLabel],
     tags: ['100% Vegan', '7 Natural Oils', 'Hair Repair', 'Tangle-Free'],
     texture: { consistency: 'Rich Velvet Cream', scent: 'Soft Botanical & Natural Oils', feelLabel: 'Hair Feel', feel: 'Silky · Nourishing · Smooth', copy: 'A rich, warm finish inspired by the conditioner’s terracotta packaging — designed to smooth through lengths and leave the hair feeling supple.' },
     ingredients: [
@@ -70,6 +69,7 @@ const copy = {
 
 function App() {
   const [language, setLanguage] = useState<Language>('EN');
+  const [featuredProduct, setFeaturedProduct] = useState<ProductKey>('shampoo');
   const [selectedProduct, setSelectedProduct] = useState<ProductKey | null>(null);
   const [tab, setTab] = useState<TabKey>('overview');
   const [galleryIndex, setGalleryIndex] = useState(0);
@@ -82,6 +82,7 @@ function App() {
   const inactivityTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const t = copy[language];
   const product = selectedProduct ? productData[selectedProduct] : null;
+  const featuredImage = featuredProduct === 'shampoo' ? assets.pour : assets.still;
   const direction = language === 'AR' ? 'rtl' : 'ltr';
 
   const goTo = (id: string) => {
@@ -154,13 +155,20 @@ function App() {
             )}
 
             <section className="hero" id="hero">
-              <img className="hero-image" src={assets.hero} alt="ALEMONA shampoo and conditioner in warm sunlight" data-testid="img-hero-still-life" />
+              <img className={`hero-image hero-image-${featuredProduct}`} src={featuredImage} alt={`ALEMONA ${featuredProduct} product study`} data-testid="img-hero-product" />
               <div className="hero-content">
-                <img className="hero-logo" src={assets.logo} alt="ALEMONA botanical logo" data-testid="img-brand-logo" />
-                <div className="hero-kicker eyebrow">Natural Hair &amp; Scalp Care</div>
+                <div className="hero-wordmark" aria-label="ALEMONA" data-testid="img-brand-logo">ALEMONA</div>
+                <div className="hero-kicker eyebrow">Natural Hair &amp; Scalp Care / {featuredProduct === 'shampoo' ? '01' : '02'}</div>
                 <h1 data-testid="text-hero-alemona">ALEMONA</h1>
                 <h2>Formulated with Botanical Oils &amp; Vitamin E</h2>
                 <p className="hero-note">A quiet study of formulas, textures and the botanical details behind the ritual.</p>
+                <div className="hero-product-switch" aria-label="Choose featured product">
+                  {(['shampoo', 'conditioner'] as ProductKey[]).map((key) => (
+                    <button key={key} className={featuredProduct === key ? 'active' : ''} onClick={() => setFeaturedProduct(key)} data-testid={`button-featured-${key}`}>
+                      0{key === 'shampoo' ? 1 : 2} / {key === 'shampoo' ? 'Almond Tar Shampoo' : 'Hair Conditioner'}
+                    </button>
+                  ))}
+                </div>
                 <div className="hero-actions">
                   <button className="primary-link" onClick={() => goTo('collection')} data-testid="button-explore-collection">{t.explore}<ArrowRight size={15} /></button>
                   <button className="quiet-link" onClick={() => goTo('detail')} data-testid="button-discover-formulas">{t.discover}</button>
@@ -176,7 +184,7 @@ function App() {
               </div>
               <div className="collection-grid">
                 <article className="product-card" onClick={() => openProduct('shampoo')} data-testid="card-product-shampoo" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && openProduct('shampoo')}>
-                  <img className="product-card-image" src={assets.still} alt="ALEMONA Almond Tar Shampoo and Hair Conditioner" />
+                  <img className="product-card-image product-card-shampoo-image" src={assets.pour} alt="ALEMONA Almond Tar Shampoo product study" />
                   <div className="product-card-copy">
                     <div className="product-number">01 / Formula</div><h3>Almond Tar<br />Shampoo</h3>
                     <p>For softer and stronger hair. A botanical scalp-care formula with pure almond tar.</p>
@@ -184,7 +192,7 @@ function App() {
                   </div>
                 </article>
                 <article className="product-card" onClick={() => openProduct('conditioner')} data-testid="card-product-conditioner" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && openProduct('conditioner')}>
-                  <img className="product-card-image" src={assets.hero} alt="ALEMONA Hair Conditioner in terracotta packaging" />
+                  <img className="product-card-image product-card-conditioner-image" src={assets.still} alt="ALEMONA Hair Conditioner product study" />
                   <div className="product-card-copy">
                     <div className="product-number">02 / Formula</div><h3>Hair<br />Conditioner</h3>
                     <p>With natural oils and Vitamin E. A restorative finish for smooth, tangle-free lengths.</p>
@@ -198,8 +206,8 @@ function App() {
               <div className="detail-shell">
                 <div className="detail-media">
                   <div className="main-media">
-                    <div className="media-marker eyebrow">Alemona / {selectedProduct ? `0${selectedProduct === 'shampoo' ? 1 : 2}` : '01'}<span>{selectedProduct ? product?.name : 'Choose a formula'}</span></div>
-                    <img src={product ? gallery[galleryIndex] : assets.macro} alt={product ? `${product.name} detail` : 'Golden botanical formula macro'} key={`${selectedProduct}-${galleryIndex}`} data-testid="img-product-detail" />
+                     <div className="media-marker eyebrow">Alemona / {selectedProduct ? `0${selectedProduct === 'shampoo' ? 1 : 2}` : '01'}<span>{selectedProduct ? product?.name : 'Choose a formula'}</span></div>
+                     <img className={selectedProduct ? `product-detail-image product-detail-image-${selectedProduct}` : 'product-detail-image'} src={product ? gallery[galleryIndex] : assets.macro} alt={product ? `${product.name} detail` : 'Golden botanical formula macro'} key={`${selectedProduct}-${galleryIndex}`} data-testid="img-product-detail" />
                     {product && <button className="texture-open" onClick={() => setTextureOpen(true)} data-testid="button-view-texture"><Maximize2 size={13} /> View texture</button>}
                   </div>
                   {product && <div className="gallery-strip" aria-label="Product image gallery">
@@ -230,7 +238,7 @@ function App() {
 
             <section className="section philosophy" id="philosophy">
               <div className="philosophy-grid">
-                <img className="philosophy-image" src={assets.logo} alt="ALEMONA botanical logo over leaves" data-testid="img-philosophy-logo" />
+                 <img className="philosophy-image" src={assets.macro} alt="Golden botanical formula detail" data-testid="img-philosophy-detail" />
                 <div className="philosophy-copy"><div className="eyebrow">03 / The point of view</div><h2>{t.philosophy}</h2><p>A premium botanical hair-care philosophy centered around carefully selected oils, thoughtful formulations, and a transparent approach to hair and scalp care.</p><p>Every detail is an invitation to look closer: the amber of the formula, the embossed label, the quiet rhythm of a considered ritual.</p></div>
               </div>
             </section>
