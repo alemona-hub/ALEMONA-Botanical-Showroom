@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, Menu, X, MapPin, Maximize2 } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, Menu, X, Maximize2, Minus, Plus, ShoppingBag, Instagram, MessageCircle } from 'lucide-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -14,11 +14,27 @@ const assets = {
   shampooCloseup: asset('alemona-shampoo-closeup.jpg'),
   ritualPour: asset('alemona-ritual-pour.jpg'),
   editorialStillLife: asset('alemona-editorial-still-life.jpg'),
+  shampooBotanical: asset('alemona-shampoo-botanical.jpg'),
+  shampooForest: asset('alemona-shampoo-forest.jpg'),
+  conditionerFoam: asset('alemona-conditioner-foam.jpg'),
+  conditionerCloseup: asset('alemona-conditioner-closeup.jpg'),
 };
 
 type ProductKey = 'shampoo' | 'conditioner';
 type Language = 'EN' | 'TR' | 'AR';
 type TabKey = 'overview' | 'texture' | 'ingredients' | 'use';
+const PRODUCT_PRICE = 400;
+const WHATSAPP_PHONE = '905319359356';
+const INSTAGRAM_URL = 'https://www.instagram.com/alemonacare/';
+const orderProductKeys: ProductKey[] = ['shampoo', 'conditioner'];
+const orderProductNames: Record<ProductKey, string> = {
+  shampoo: 'ALEMona Shampoo',
+  conditioner: 'ALEMona Conditioner',
+};
+const orderProductImages: Record<ProductKey, string[]> = {
+  shampoo: [assets.shampoo, assets.shampooBotanical, assets.shampooForest, assets.shampooCloseup],
+  conditioner: [assets.conditioner, assets.conditionerCloseup, assets.conditionerFoam],
+};
 
 const productData: Record<ProductKey, {
   name: string; size: string; subtitle: string; description: string; images: string[]; tags: string[];
@@ -31,7 +47,7 @@ const productData: Record<ProductKey, {
     size: '350 ml',
     subtitle: 'For Softer & Stronger Hair',
     description: 'A premium natural shampoo specifically created for complete hair and scalp care. Enriched with pure almond tar, juniper wood oil, and essential vitamins to nourish hair roots, eliminate dandruff, relieve scalp itchiness, and help protect hair against breakage.',
-    images: [assets.shampoo, assets.shampooCloseup],
+    images: orderProductImages.shampoo,
     tags: ['100% Vegan', 'Anti-Dandruff', 'Color-Safe', 'Pure Almond Tar'],
     texture: { consistency: 'Liquid Amber Honey', scent: 'Natural Botanical Almond & Herbal Refreshment', feelLabel: 'Scalp Feel', feel: 'Soothing · Cooling · Non-Greasy', copy: 'A translucent, amber-gold formula captured in motion — fluid, warm and designed to meet the scalp with a clean, refreshing touch.' },
     ingredients: [
@@ -47,7 +63,7 @@ const productData: Record<ProductKey, {
     size: '350 ml',
     subtitle: 'With Natural Oils & Vitamin E',
     description: 'A deeply restorative conditioner designed for all hair types. Enriched with Vitamin E and a rich blend of 7 natural botanical oils — Shea, Coconut, Almond, Castor, Black Seed, Grape Seed, and Onion Seed — to help repair damaged strands, reduce tangles, and impart a silky shine.',
-    images: [assets.conditioner],
+    images: orderProductImages.conditioner,
     tags: ['100% Vegan', '7 Natural Oils', 'Hair Repair', 'Tangle-Free'],
     texture: { consistency: 'Rich Velvet Cream', scent: 'Soft Botanical & Natural Oils', feelLabel: 'Hair Feel', feel: 'Silky · Nourishing · Smooth', copy: 'A rich, warm finish inspired by the conditioner’s terracotta packaging — designed to smooth through lengths and leave the hair feeling supple.' },
     ingredients: [
@@ -77,11 +93,31 @@ function App() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [kiosk, setKiosk] = useState(false);
   const [deskOpen, setDeskOpen] = useState(false);
+  const [quantities, setQuantities] = useState<Record<ProductKey, number>>({ shampoo: 1, conditioner: 1 });
+  const [cardGalleryIndex, setCardGalleryIndex] = useState<Record<ProductKey, number>>({ shampoo: 0, conditioner: 0 });
   const inactivityTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const t = copy[language];
   const product = selectedProduct ? productData[selectedProduct] : null;
   const featuredImage = featuredProduct === 'shampoo' ? assets.shampooCloseup : assets.conditioner;
   const direction = language === 'AR' ? 'rtl' : 'ltr';
+  const formatPrice = (amount: number) => `${amount.toLocaleString('en-US')} TL`;
+  const cartTotal = orderProductKeys.reduce((total, key) => total + quantities[key] * PRODUCT_PRICE, 0);
+  const updateQuantity = (key: ProductKey, delta: number) => {
+    setQuantities((current) => ({ ...current, [key]: Math.max(0, current[key] + delta) }));
+  };
+  const whatsappLinkForProduct = (key: ProductKey) => {
+    const quantity = quantities[key];
+    const total = quantity * PRODUCT_PRICE;
+    const message = `Hello, welcome to ALEMona Natural Hair & Scalp Care 🌿\n\nI would like to place an order:\n\nProduct: ${orderProductNames[key]}\nQuantity: ${quantity}\nUnit price: ${formatPrice(PRODUCT_PRICE)}\nTotal: ${formatPrice(total)}\n\nThank you!`;
+    return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+  };
+  const whatsappCartLink = () => {
+    const lines = orderProductKeys
+      .filter((key) => quantities[key] > 0)
+      .map((key) => `${orderProductNames[key]} × ${quantities[key]} = ${formatPrice(quantities[key] * PRODUCT_PRICE)}`);
+    const message = `Hello, welcome to ALEMona Natural Hair & Scalp Care 🌿\n\nI would like to place an order:\n\n${lines.join('\n')}\n\nTotal: ${formatPrice(cartTotal)}\n\nThank you!`;
+    return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+  };
 
   const goTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -146,6 +182,7 @@ function App() {
             {mobileMenu && (
               <nav className="mobile-menu" aria-label="Mobile navigation">
                 <button onClick={() => goTo('collection')} data-testid="mobile-link-collection">{t.collection}</button>
+                <button onClick={() => goTo('order-summary')} data-testid="mobile-link-order">Order</button>
                 <button onClick={() => goTo('detail')} data-testid="mobile-link-formulas">{t.more}</button>
                 <button onClick={() => goTo('philosophy')} data-testid="mobile-link-philosophy">{t.philosophy}</button>
                 <button onClick={() => setDeskOpen(true)} data-testid="mobile-button-store">{t.find}</button>
@@ -181,23 +218,93 @@ function App() {
                 <p>{t.collectionSub} Select a formula to move closer — into its texture, ingredients and use.</p>
               </div>
               <div className="collection-grid">
-                <article className="product-card" onClick={() => openProduct('shampoo')} data-testid="card-product-shampoo" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && openProduct('shampoo')}>
-                  <img className="product-card-image product-card-shampoo-image" src={assets.shampoo} alt="ALEMONA Almond Tar Shampoo product study" />
-                  <div className="product-card-copy">
-                    <div className="product-number">01 / Formula</div><h3>Almond Tar<br />Shampoo</h3>
-                    <p>For softer and stronger hair. A botanical scalp-care formula with pure almond tar.</p>
-                    <div className="card-meta"><span>350 ml</span><span className="card-arrow">{t.more}<ArrowUpRight size={15} /></span></div>
-                  </div>
-                </article>
-                <article className="product-card" onClick={() => openProduct('conditioner')} data-testid="card-product-conditioner" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && openProduct('conditioner')}>
-                  <img className="product-card-image product-card-conditioner-image" src={assets.conditioner} alt="ALEMONA Hair Conditioner product study" />
-                  <div className="product-card-copy">
-                    <div className="product-number">02 / Formula</div><h3>Hair<br />Conditioner</h3>
-                    <p>With natural oils and Vitamin E. A restorative finish for smooth, tangle-free lengths.</p>
-                    <div className="card-meta"><span>350 ml</span><span className="card-arrow">{t.more}<ArrowUpRight size={15} /></span></div>
-                  </div>
-                </article>
+                {orderProductKeys.map((key, index) => {
+                  const photos = orderProductImages[key];
+                  const quantity = quantities[key];
+                  const name = orderProductNames[key];
+                  const description = key === 'shampoo'
+                    ? 'Almond tar, juniper wood oil and Vitamin E in a nourishing scalp-care formula for softer, stronger hair.'
+                    : 'A restorative conditioner with Vitamin E and botanical oils for softer, smoother, easy-to-comb lengths.';
+                  return (
+                    <article className="product-card" key={key} data-testid={`card-product-${key}`}>
+                      <div className="product-card-photo">
+                        <img className={`product-card-image ${cardGalleryIndex[key] === 0 ? 'product-card-image-packaging' : ''}`} src={photos[cardGalleryIndex[key]]} alt={`${name} product photo ${cardGalleryIndex[key] + 1}`} data-testid={`img-order-product-${key}`} />
+                        <span className="product-photo-index">0{index + 1} / PRODUCT STUDY</span>
+                      </div>
+                      <div className="product-card-thumbnails" aria-label={`${name} photos`}>
+                        {photos.map((photo, photoIndex) => (
+                          <button
+                            key={photo}
+                            className={`product-card-thumb ${cardGalleryIndex[key] === photoIndex ? 'active' : ''}`}
+                            onClick={() => setCardGalleryIndex((current) => ({ ...current, [key]: photoIndex }))}
+                            aria-label={`View photo ${photoIndex + 1} of ${name}`}
+                            aria-pressed={cardGalleryIndex[key] === photoIndex}
+                          >
+                            <img src={photo} alt="" />
+                          </button>
+                        ))}
+                      </div>
+                      <div className="product-card-copy">
+                        <div className="product-number">0{index + 1} / Formula · 350 ml</div>
+                        <h3>{name}</h3>
+                        <p>{description}</p>
+                        <div className="product-price">{formatPrice(PRODUCT_PRICE)} <span>per bottle</span></div>
+                        <div className="quantity-row">
+                          <span className="quantity-label">Quantity</span>
+                          <div className="quantity-control" aria-label={`${name} quantity`}>
+                            <button type="button" onClick={() => updateQuantity(key, -1)} aria-label={`Decrease ${name} quantity`} data-testid={`button-quantity-minus-${key}`}><Minus size={17} /></button>
+                            <output aria-live="polite" data-testid={`text-quantity-${key}`}>{quantity}</output>
+                            <button type="button" onClick={() => updateQuantity(key, 1)} aria-label={`Increase ${name} quantity`} data-testid={`button-quantity-plus-${key}`}><Plus size={17} /></button>
+                          </div>
+                        </div>
+                        <div className="product-order-row">
+                          <div><small>Line total</small><strong data-testid={`text-line-total-${key}`}>{formatPrice(quantity * PRODUCT_PRICE)}</strong></div>
+                          <a
+                            className={`product-order-button ${quantity === 0 ? 'disabled' : ''}`}
+                            href={quantity ? whatsappLinkForProduct(key) : undefined}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-disabled={quantity === 0}
+                            onClick={(event) => quantity === 0 && event.preventDefault()}
+                            data-testid={`button-order-${key}`}
+                          >
+                            <MessageCircle size={16} /> Order
+                          </a>
+                        </div>
+                        <button className="product-explore-link" onClick={() => openProduct(key)} data-testid={`button-explore-${key}`}>Explore formula <ArrowUpRight size={14} /></button>
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
+              <section className="order-summary" id="order-summary" aria-label="Order summary">
+                <div className="order-summary-heading">
+                  <div><div className="eyebrow">Your selection</div><h3><ShoppingBag size={23} /> Order summary</h3></div>
+                  <p>Adjust quantities above. Your order is completed in WhatsApp—no online payment or account needed.</p>
+                </div>
+                <div className="order-summary-lines">
+                  {orderProductKeys.map((key) => (
+                    <div className={`order-summary-line ${quantities[key] === 0 ? 'not-selected' : ''}`} key={key}>
+                      <div><strong>{orderProductNames[key]}</strong><span>{quantities[key] > 0 ? `Quantity: ${quantities[key]} · ${formatPrice(PRODUCT_PRICE)} each` : 'Not selected · 400 TL each'}</span></div>
+                      <strong>{formatPrice(quantities[key] * PRODUCT_PRICE)}</strong>
+                    </div>
+                  ))}
+                </div>
+                <div className="order-summary-total">
+                  <div><span>Total</span><strong data-testid="text-cart-total">{formatPrice(cartTotal)}</strong></div>
+                  <a
+                    className={`whatsapp-order-button ${cartTotal === 0 ? 'disabled' : ''}`}
+                    href={cartTotal > 0 ? whatsappCartLink() : undefined}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-disabled={cartTotal === 0}
+                    onClick={(event) => cartTotal === 0 && event.preventDefault()}
+                    data-testid="button-order-cart"
+                  >
+                    <MessageCircle size={18} /> Order via WhatsApp
+                  </a>
+                </div>
+              </section>
             </section>
 
             <section className="section detail" id="detail" aria-label="Product detail">
@@ -245,10 +352,14 @@ function App() {
             </section>
 
             <section className="store-band" id="store">
-              <div><div className="eyebrow">04 / Information desk</div><h3>{t.find}</h3></div>
-              <div><p>For availability and local information, visit the ALEMONA information desk.</p><button className="store-button" onClick={() => setDeskOpen(true)} data-testid="button-find-store"><MapPin size={15} /> Visit information desk</button></div>
+              <div><div className="eyebrow">04 / Stay in touch</div><h3>Find us online.</h3></div>
+              <div className="social-actions">
+                <p>Questions or ready to order? Contact ALEMona directly.</p>
+                <a className="store-button" href={INSTAGRAM_URL} target="_blank" rel="noreferrer" data-testid="link-instagram"><Instagram size={16} /> Follow us on Instagram</a>
+                <a className="store-button" href={`https://wa.me/${WHATSAPP_PHONE}`} target="_blank" rel="noreferrer" data-testid="link-whatsapp-contact"><MessageCircle size={16} /> WhatsApp +90 531 935 93 56</a>
+              </div>
             </section>
-            <footer className="footer"><strong>ALEMONA</strong><span>Natural Hair &amp; Scalp Care</span><span>Formulated with Botanical Oils &amp; Vitamin E</span></footer>
+            <footer className="footer"><strong>ALEMONA</strong><span>Natural Hair &amp; Scalp Care</span><span>Formulated with Botanical Oils &amp; Vitamin E</span><a href={`https://wa.me/${WHATSAPP_PHONE}`} target="_blank" rel="noreferrer">WhatsApp: +90 531 935 93 56</a><a href={INSTAGRAM_URL} target="_blank" rel="noreferrer">Instagram: @alemonacare</a></footer>
             <button className="kiosk-toggle" onClick={() => setKiosk((value) => !value)} data-testid="button-kiosk-mode">{kiosk ? 'Exit kiosk' : 'Kiosk mode'}</button>
 
             {textureOpen && product && <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label="Texture viewer"><div className="texture-modal"><button className="close-modal" onClick={() => setTextureOpen(false)} data-testid="button-close-texture"><X size={18} /></button><img src={selectedProduct === 'shampoo' ? assets.shampooCloseup : assets.conditioner} alt={`${product.name} texture detail`} /><div className="texture-modal-copy"><div className="eyebrow">Sensory study / {product.name}</div><h3>{product.texture.consistency}</h3><p>{product.texture.copy}</p><div className="stat"><small>{product.texture.feelLabel}</small><strong>{product.texture.feel}</strong></div></div></div></div>}
